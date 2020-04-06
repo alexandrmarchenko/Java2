@@ -10,6 +10,9 @@ public class Phonebook {
     }
 
     public String getPhone(String lastname){
+        if(!book.containsKey(lastname)) {
+            return String.format("Нет данных по фамилии %s", lastname);
+        }
         String phoneNumbers =  book.get(lastname).toString();
         return String.format("%s список номеров:%s",lastname, phoneNumbers);
     }
