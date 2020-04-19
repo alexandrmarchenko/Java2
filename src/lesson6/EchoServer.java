@@ -28,7 +28,7 @@ public class EchoServer {
                         String message = inputStream.readUTF();
                         System.out.println("From client: " + message);
                         if (message.equals("/end")) {
-                            break;
+                           System.exit(0);
                         }
                     } catch (IOException e) {
                         System.out.println("Client disconnected");

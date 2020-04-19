@@ -24,6 +24,9 @@ public class EchoClient {
                     try {
                         String message = inputStream.readUTF();
                         System.out.println("From server: " + message);
+                        if (message.equals("/end")) {
+                            System.exit(0);
+                        }
                     } catch (IOException e) {
                         System.out.println("Connection was closed");
                         break;
