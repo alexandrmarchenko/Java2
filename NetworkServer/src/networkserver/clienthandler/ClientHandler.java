@@ -55,9 +55,19 @@ public class ClientHandler {
             String message = inputStream.readUTF();
             if (message.startsWith(END_CMD)) {
                 return;
+            } else if (message.startsWith(PRIVATE_MSG_CMD)) {
+                String[] parts = message.split("\\s+",3);
+                String username = parts[1];
+                String privateMessage = parts[2];
+                serverInstance.sendPrivateMessage(nickname, buildMessage(privateMessage));
+            } else {
+                serverInstance.broadcastMessage(buildMessage(message));
             }
-            serverInstance.broadcastMessage(String.format("%s: %s", nickname, message));
         }
+    }
+
+    private String buildMessage(String message) {
+        return String.format("%s: %s", nickname, message);
     }
 
     private void authentication() throws IOException {

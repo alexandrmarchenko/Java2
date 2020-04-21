@@ -101,7 +101,7 @@ public class ClientController {
         try {
             networkService.sendMessage(message);
         } catch (IOException e) {
-            //JOptionPane.showMessageDialog(null, "Failed to send message!");
+            showErrorMessage("Failed to send message!");
             e.printStackTrace();
         }
     }
@@ -116,15 +116,17 @@ public class ClientController {
 
     public void showErrorMessage(String message) {
         Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Warning");
             alert.setHeaderText(null);
             alert.setContentText(message);
 
             alert.showAndWait();
-            //JOptionPane.showMessageDialog(authDialog, message);
         });
 
     }
 
+    public void sendPrivateMessage(String username, String message) {
+        sendMessage(String.format("/w %s %s", username, message));
+    }
 }
