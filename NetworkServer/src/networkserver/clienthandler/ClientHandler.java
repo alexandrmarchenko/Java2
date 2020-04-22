@@ -83,7 +83,6 @@ public class ClientHandler {
             try {
                 Thread.sleep(120000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
                 return;
             }
             String errorMessage = "Time for connection expired";

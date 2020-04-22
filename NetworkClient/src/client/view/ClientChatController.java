@@ -36,6 +36,8 @@ public class ClientChatController {
         if (message.isEmpty()) {
             return;
         }
+
+
         appendOwnMessage(message);
 
         if (userList.getSelectionModel().getSelectedIndex() < 1) {
@@ -54,8 +56,10 @@ public class ClientChatController {
     }
 
     public void appendMessage(String message) {
-        txtArea.appendText(message);
-        txtArea.appendText(System.lineSeparator());
+        Platform.runLater(() -> {
+            txtArea.appendText(message);
+            txtArea.appendText(System.lineSeparator());
+        });
     }
 
     public void updateUsers(List<String> users) {

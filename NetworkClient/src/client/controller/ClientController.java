@@ -25,6 +25,25 @@ public class ClientController {
         this.networkService = new NetworkService(serverHost, serverPort, this);
         this.authDialog = new AuthDialog(this);
         this.clientChat = new ClientChat(this);
+
+        new JFXPanel();
+        Platform.runLater(() -> {
+            try {
+                authDialog.start(new Stage());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        Platform.runLater(() -> {
+            try {
+                clientChat.start(new Stage());
+                clientChat.getStage().hide();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
     }
 
     public void runApplication() throws IOException {
@@ -40,20 +59,10 @@ public class ClientController {
                 ClientController.this.openChat(nickname);
             }
         });
-
-        new JFXPanel();
-        Platform.runLater(() -> {
-            try {
-                authDialog.start(new Stage());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-
     }
 
     private void openChat(String nickname) {
-        Platform.runLater(()->{
+        Platform.runLater(() -> {
             try {
                 authDialog.stop();
             } catch (Exception e) {
@@ -67,14 +76,10 @@ public class ClientController {
             }
         });
         Platform.runLater(() -> {
-            try {
-                clientChat.start(new Stage());
-                ClientController.this.setUserName(nickname);
-                clientChat.getStage().setTitle(nickname);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            clientChat.getStage().setTitle(nickname);
+            clientChat.getStage().show();
         });
+
     }
 
     private void setUserName(String nickname) {
@@ -131,8 +136,6 @@ public class ClientController {
     }
 
     public void updateUserList(List<String> users) {
-        while (clientChat.getClientChatController() == null) {
-        }
         users.remove(nickname);
         users.add(0, ALL_USERS_LIST_ITEM);
         clientChat.updateUsers(users);
