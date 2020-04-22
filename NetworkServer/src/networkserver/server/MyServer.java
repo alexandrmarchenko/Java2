@@ -1,5 +1,6 @@
 package networkserver.server;
 
+import client.Command;
 import networkserver.auth.AuthService;
 import networkserver.auth.BaseAuthService;
 import networkserver.clienthandler.ClientHandler;
@@ -61,24 +62,39 @@ public class MyServer {
         return false;
     }
 
-    public synchronized void broadcastMessage(String message) throws IOException {
+    public synchronized void broadcastMessage(Command command) throws IOException {
         for (ClientHandler client : clients) {
-            client.sendMessage(message);
+            client.sendMessage(command);
         }
     }
 
-    public synchronized void subscribe(ClientHandler clientHandler) {
+    public synchronized void subscribe(ClientHandler clientHandler) throws IOException {
         clients.add(clientHandler);
+        List<String> users = getAllUsernames();
+        broadcastMessage(Command.updateUsersListCommand(users));
     }
-    public synchronized void unsubscribe(ClientHandler clientHandler) {
+    public synchronized void unsubscribe(ClientHandler clientHandler) throws IOException {
         clients.remove(clientHandler);
+        List<String> users = getAllUsernames();
+        broadcastMessage(Command.updateUsersListCommand(users));
     }
 
-    public void sendPrivateMessage(String username, String message) {
+    private List<String> getAllUsernames() {
+//        return clients.stream()
+//                .map(ClientHandler::getNickname)
+//                .collect(Collectors.toList());
+        List<String> result = new ArrayList<>();
         for (ClientHandler client : clients) {
-            if(client.getNickname().equals(username)) {
+            result.add(client.getNickname());
+        }
+        return result;
+    }
+
+    public void sendPrivateMessage(String receiver, Command command) {
+        for (ClientHandler client : clients) {
+            if(client.getNickname().equals(receiver)) {
                 try {
-                    client.sendMessage(message);
+                    client.sendMessage(command);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

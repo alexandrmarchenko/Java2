@@ -1,15 +1,16 @@
 package client.controller;
 
+import client.Command;
 import client.model.NetworkService;
 import client.view.AuthDialog;
 import client.view.ClientChat;
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class ClientController {
@@ -18,6 +19,7 @@ public class ClientController {
     private final AuthDialog authDialog;
     private final ClientChat clientChat;
     private String nickname;
+    private final String ALL_USERS_LIST_ITEM = "All";
 
     public ClientController(String serverHost, int serverPort) {
         this.networkService = new NetworkService(serverHost, serverPort, this);
@@ -63,13 +65,13 @@ public class ClientController {
         networkService.setMessageHandler(new Consumer<String>() {
             @Override
             public void accept(String message) {
-                clientChat.getController().appendMessage(message);
+                clientChat.getClientChatController().appendMessage(message);
             }
         });
         Platform.runLater(() -> {
             try {
-                clientChat.start(new Stage());
                 ClientController.this.setUserName(nickname);
+                clientChat.start(new Stage());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -77,9 +79,6 @@ public class ClientController {
     }
 
     private void setUserName(String nickname) {
-        /*SwingUtilities.invokeLater(() -> {
-            clientChat.setTitle(nickname);
-        });*/
         clientChat.getStage().setTitle(nickname);
         this.nickname = nickname;
     }
@@ -94,15 +93,18 @@ public class ClientController {
     }
 
     public void sendAuthMessage(String login, String pass) throws IOException {
-        networkService.sendAuthMessage(login, pass);
+        sendCommand(Command.authCommand(login, pass));
     }
 
     public void sendMessage(String message) {
+        sendCommand(Command.broadcastMessageCommand(message));
+    }
+
+    private void sendCommand(Command command) {
         try {
-            networkService.sendMessage(message);
+            networkService.sendCommand(command);
         } catch (IOException e) {
-            showErrorMessage("Failed to send message!");
-            e.printStackTrace();
+            showErrorMessage(e.getMessage());
         }
     }
 
@@ -127,6 +129,14 @@ public class ClientController {
     }
 
     public void sendPrivateMessage(String username, String message) {
-        sendMessage(String.format("/w %s %s", username, message));
+        sendCommand(Command.privateMessageCommand(username, message));
+    }
+
+    public void updateUserList(List<String> users) {
+        while (clientChat.getClientChatController() == null) {
+        }
+        users.remove(nickname);
+        users.add(0, ALL_USERS_LIST_ITEM);
+        clientChat.updateUsers(users);
     }
 }

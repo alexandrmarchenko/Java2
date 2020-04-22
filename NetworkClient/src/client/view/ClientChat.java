@@ -2,17 +2,13 @@ package client.view;
 
 import client.controller.ClientController;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.List;
 
 public class ClientChat extends Application {
     private ClientController controller;
@@ -28,7 +24,7 @@ public class ClientChat extends Application {
         //launch();
     }
 
-    public ClientChatController getController() {
+    public ClientChatController getClientChatController() {
         return chatController;
     }
 
@@ -60,4 +56,7 @@ public class ClientChat extends Application {
     }
 
 
+    public void updateUsers(List<String> users) {
+        this.chatController.updateUSers(users);
+    }
 }
