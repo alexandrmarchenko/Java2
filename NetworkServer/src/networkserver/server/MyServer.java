@@ -1,6 +1,7 @@
 package networkserver.server;
 
 import client.Command;
+import client.command.MessageCommand;
 import networkserver.auth.AuthService;
 import networkserver.auth.BaseAuthService;
 import networkserver.clienthandler.ClientHandler;
@@ -99,6 +100,19 @@ public class MyServer {
                     e.printStackTrace();
                 }
                 return;
+            }
+        }
+    }
+
+    public void broadcastMessageExceptSender(Command command) {
+        MessageCommand messageCommand = (MessageCommand) command.getData();
+        for (ClientHandler client : clients) {
+            if (client.getNickname() != messageCommand.getUsername()) {
+                try {
+                    client.sendMessage(command);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

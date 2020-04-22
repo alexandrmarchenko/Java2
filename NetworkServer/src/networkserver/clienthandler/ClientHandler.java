@@ -61,7 +61,7 @@ public class ClientHandler {
                     return;
                 case BROADCAST_MESSAGE:
                     BroadcastMessageCommand data = (BroadcastMessageCommand) command.getData();
-                    serverInstance.broadcastMessage(Command.messageCommand(nickname, data.getMessage()));
+                    serverInstance.broadcastMessageExceptSender(Command.messageCommand(nickname, data.getMessage()));
                     break;
                 case PRIVATE_MESSAGE:
                     PrivateMessageCommand privateMessageCommand = (PrivateMessageCommand) command.getData();
@@ -79,20 +79,7 @@ public class ClientHandler {
     }
 
     private void authentication() throws IOException {
-        Thread wait = new Thread(() -> {
-            try {
-                Thread.sleep(120000);
-            } catch (InterruptedException e) {
-                return;
-            }
-            String errorMessage = "Time for connection expired";
-            System.err.println(errorMessage);
-            try {
-                sendMessage(Command.timeoutEndCommand(errorMessage));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+        Thread wait = authTimeout();
         wait.start();
         while (true) {
             Command command = readCommand();
@@ -113,6 +100,23 @@ public class ClientHandler {
                     sendMessage(Command.errorCommand(errorMessage));
             }
         }
+    }
+
+    private Thread authTimeout() {
+        return new Thread(() -> {
+                try {
+                    Thread.sleep(120000);
+                } catch (InterruptedException e) {
+                    return;
+                }
+                String errorMessage = "Time for connection expired";
+                System.err.println(errorMessage);
+                try {
+                    sendMessage(Command.timeoutEndCommand(errorMessage));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
     }
 
     private Command readCommand() throws IOException {
