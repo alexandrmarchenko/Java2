@@ -1,10 +1,7 @@
 package client.model;
 
 import client.Command;
-import client.command.AuthCommand;
-import client.command.ErrorCommand;
-import client.command.MessageCommand;
-import client.command.UpdateUsersListCommand;
+import client.command.*;
 import client.controller.AuthEvent;
 import client.controller.ClientController;
 
@@ -73,6 +70,12 @@ public class NetworkService {
                 UpdateUsersListCommand data = (UpdateUsersListCommand) command.getData();
                 List<String> users = data.getUsers();
                 controller.updateUserList(users);
+                break;
+            }
+            case TIMEOUT_END: {
+                TimeoutEndCommand data = (TimeoutEndCommand) command.getData();
+                controller.showErrorMessage(data.getTimeoutMessage());
+                controller.timeoutEnd();
                 break;
             }
             default:

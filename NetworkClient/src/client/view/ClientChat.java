@@ -21,7 +21,6 @@ public class ClientChat extends Application {
 
     public ClientChat(ClientController controller) {
         this.controller = controller;
-        //launch();
     }
 
     public ClientChatController getClientChatController() {
@@ -57,6 +56,6 @@ public class ClientChat extends Application {
 
 
     public void updateUsers(List<String> users) {
-        this.chatController.updateUSers(users);
+        this.chatController.updateUsers(users);
     }
 }

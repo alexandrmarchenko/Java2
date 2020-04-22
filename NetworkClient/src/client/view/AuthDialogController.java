@@ -46,4 +46,7 @@ public class AuthDialogController {
         System.exit(0);
     }
 
+    public void disableAuth() {
+        btnAuth.setDisable(true);
+    }
 }

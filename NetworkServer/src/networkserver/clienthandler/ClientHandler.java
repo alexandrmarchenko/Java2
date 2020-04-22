@@ -34,7 +34,7 @@ public class ClientHandler {
                 authentication();
                 readMessages();
             } catch (IOException e) {
-                System.out.println(String.format("User %s connection has been failed", nickname));
+                System.out.println("Connection has been failed");
             } finally {
                 closeConnection();
             }
@@ -53,7 +53,7 @@ public class ClientHandler {
     private void readMessages() throws IOException {
         while (true) {
             Command command = readCommand();
-            if(command == null) {
+            if (command == null) {
                 continue;
             }
             switch (command.getType()) {
@@ -79,14 +79,31 @@ public class ClientHandler {
     }
 
     private void authentication() throws IOException {
+        Thread wait = new Thread(() -> {
+            try {
+                Thread.sleep(120000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return;
+            }
+            String errorMessage = "Time for connection expired";
+            System.err.println(errorMessage);
+            try {
+                sendMessage(Command.timeoutEndCommand(errorMessage));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        wait.start();
         while (true) {
             Command command = readCommand();
-            if(command == null) {
+            if (command == null) {
                 continue;
             }
             switch (command.getType()) {
                 case AUTH: {
                     if (processAuthCommand(command)) {
+                        wait.interrupt();
                         return;
                     }
                     break;

@@ -11,14 +11,14 @@ import java.io.IOException;
 
 public class AuthDialog extends Application {
 
-    private ClientController controller;
+    private ClientController clientController;
 
-    private ClientChat clientChat;
+    private AuthDialogController authDialogController;
 
     private Stage stage;
 
-    public AuthDialog(ClientController controller) {
-        this.controller = controller;
+    public AuthDialog(ClientController clientController) {
+        this.clientController = clientController;
     }
 
     @Override
@@ -28,7 +28,9 @@ public class AuthDialog extends Application {
         Parent root = loader.load();
 
         AuthDialogController controller = loader.getController();
-        controller.setController(this.controller);
+        controller.setController(this.clientController);
+
+        this.authDialogController = loader.getController();
 
         Scene scene = new Scene(root);
         stage.setScene(scene);
@@ -44,5 +46,9 @@ public class AuthDialog extends Application {
     @Override
     public void stop() {
         this.stage.close();
+    }
+
+    public void timeoutEnd() {
+        this.authDialogController.disableAuth();
     }
 }

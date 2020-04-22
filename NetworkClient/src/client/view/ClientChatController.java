@@ -22,9 +22,6 @@ public class ClientChatController {
     }
 
     @FXML
-    private Button btn;
-
-    @FXML
     private TextArea txtArea;
 
     @FXML
@@ -61,7 +58,7 @@ public class ClientChatController {
         txtArea.appendText(System.lineSeparator());
     }
 
-    public void updateUSers(List<String> users) {
+    public void updateUsers(List<String> users) {
         Platform.runLater(() -> {
             ObservableList elements = FXCollections.observableArrayList();
             elements.addAll(users);

@@ -36,12 +36,11 @@ public class ClientController {
         networkService.setSuccessfulAuthEvent(new AuthEvent() {
             @Override
             public void authIsSuccessful(String nickname) {
+                ClientController.this.setUserName(nickname);
                 ClientController.this.openChat(nickname);
-                //ClientController.this.setUserName(nickname);
             }
         });
-        //authDialog.setVisible(true);
-        //Application.launch(authDialog.getClass());
+
         new JFXPanel();
         Platform.runLater(() -> {
             try {
@@ -54,7 +53,6 @@ public class ClientController {
     }
 
     private void openChat(String nickname) {
-        //authDialog.dispose();
         Platform.runLater(()->{
             try {
                 authDialog.stop();
@@ -70,8 +68,9 @@ public class ClientController {
         });
         Platform.runLater(() -> {
             try {
-                ClientController.this.setUserName(nickname);
                 clientChat.start(new Stage());
+                ClientController.this.setUserName(nickname);
+                clientChat.getStage().setTitle(nickname);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -79,7 +78,6 @@ public class ClientController {
     }
 
     private void setUserName(String nickname) {
-        clientChat.getStage().setTitle(nickname);
         this.nickname = nickname;
     }
 
@@ -138,5 +136,9 @@ public class ClientController {
         users.remove(nickname);
         users.add(0, ALL_USERS_LIST_ITEM);
         clientChat.updateUsers(users);
+    }
+
+    public void timeoutEnd() {
+        authDialog.timeoutEnd();
     }
 }

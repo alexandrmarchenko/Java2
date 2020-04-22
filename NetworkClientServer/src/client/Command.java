@@ -11,7 +11,7 @@ public class Command implements Serializable {
 
     public Object getData() {
         return data;
-    };
+    }
 
     public CommandType getType() {
         return type;
@@ -69,6 +69,13 @@ public class Command implements Serializable {
     public static Command endCommand() {
         Command command = new Command();
         command.type = CommandType.END;
+        return command;
+    }
+
+    public static Command timeoutEndCommand(String message) {
+        Command command = new Command();
+        command.type = CommandType.TIMEOUT_END;
+        command.data = new TimeoutEndCommand(message);
         return command;
     }
 }
