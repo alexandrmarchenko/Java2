@@ -9,6 +9,7 @@ import networkserver.server.MyServer;
 
 import java.io.*;
 import java.net.Socket;
+import java.sql.SQLException;
 
 public class ClientHandler {
     private MyServer serverInstance;
@@ -31,10 +32,13 @@ public class ClientHandler {
 
         new Thread(() -> {
             try {
+                authService.authLog(null, "user connected to the server");
                 authentication();
                 readMessages();
             } catch (IOException e) {
                 System.out.println("Connection has been failed");
+            } catch (SQLException e) {
+                System.err.println(e.getMessage());
             } finally {
                 closeConnection();
             }
@@ -78,7 +82,7 @@ public class ClientHandler {
         }
     }
 
-    private void authentication() throws IOException {
+    private void authentication() throws IOException, SQLException {
         Thread wait = authTimeout();
         wait.start();
         while (true) {
@@ -104,19 +108,19 @@ public class ClientHandler {
 
     private Thread authTimeout() {
         return new Thread(() -> {
-                try {
-                    Thread.sleep(120000);
-                } catch (InterruptedException e) {
-                    return;
-                }
-                String errorMessage = "Time for connection expired";
-                System.err.println(errorMessage);
-                try {
-                    sendMessage(Command.timeoutEndCommand(errorMessage));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
+            try {
+                Thread.sleep(120000);
+            } catch (InterruptedException e) {
+                return;
+            }
+            String errorMessage = "Time for connection expired";
+            System.err.println(errorMessage);
+            try {
+                sendMessage(Command.timeoutEndCommand(errorMessage));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private Command readCommand() throws IOException {
@@ -131,17 +135,20 @@ public class ClientHandler {
         }
     }
 
-    private boolean processAuthCommand(Command command) throws IOException {
+    private boolean processAuthCommand(Command command) throws IOException, SQLException {
         AuthCommand authCommand = (AuthCommand) command.getData();
         String login = authCommand.getLogin();
         String password = authCommand.getPassword();
 
         String nickname = authService.getNickByLoginAndPassword(login, password);
         if (nickname == null) {
+            authService.authLog(null, String.format("auth failed - incorrect login/password", login));
             sendMessage(Command.authErrorCommand("incorrect login/password"));
         } else if (serverInstance.isNicknameBusy(nickname)) {
-            sendMessage(Command.authErrorCommand("Nickname is already used"));
+            authService.authLog(login, "auth failed - user already logged in");
+            sendMessage(Command.authErrorCommand(String.format("User %s already logged in", login)));
         } else {
+            authService.authLog(login, "login success");
             authCommand.setUsername(nickname);
             sendMessage(command);
             setNickname(nickname);

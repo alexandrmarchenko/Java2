@@ -9,6 +9,7 @@ import networkserver.clienthandler.ClientHandler;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +46,10 @@ public class MyServer {
         } catch (IOException e) {
             System.err.println(e.getMessage());
             e.printStackTrace();
+        } catch (SQLException | ClassNotFoundException e) {
+            System.err.println("connection to db failed");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
         } finally {
             authService.stop();
         }
@@ -56,7 +61,7 @@ public class MyServer {
 
     public boolean isNicknameBusy(String nickname) {
         for (ClientHandler client : clients) {
-            if(client.getNickname().equals(nickname)) {
+            if (client.getNickname().equals(nickname)) {
                 return true;
             }
         }
@@ -74,6 +79,7 @@ public class MyServer {
         List<String> users = getAllUsernames();
         broadcastMessage(Command.updateUsersListCommand(users));
     }
+
     public synchronized void unsubscribe(ClientHandler clientHandler) throws IOException {
         clients.remove(clientHandler);
         List<String> users = getAllUsernames();
@@ -93,7 +99,7 @@ public class MyServer {
 
     public void sendPrivateMessage(String receiver, Command command) {
         for (ClientHandler client : clients) {
-            if(client.getNickname().equals(receiver)) {
+            if (client.getNickname().equals(receiver)) {
                 try {
                     client.sendMessage(command);
                 } catch (IOException e) {
