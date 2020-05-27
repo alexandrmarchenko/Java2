@@ -12,38 +12,56 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 public class MyServer {
 
     private final int port;
     private final List<ClientHandler> clients;
     private final AuthService authService;
+    private final Logger admin;
+    private final Logger client;
 
     public MyServer(int port) {
         this.port = port;
         this.clients = new ArrayList<>();
         this.authService = new BaseAuthService();
+        this.admin = Logger.getLogger("admin");
+        this.client = Logger.getLogger("client");
+    }
+
+    public Logger getAdmin() {
+        return admin;
+    }
+
+    public Logger getClient() {
+        return client;
     }
 
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server is running");
+            //System.out.println("Server is running");
+            admin.info("Server is running");
             authService.start();
 
             //noinspection InfiniteLoopStatement
             while (true) {
                 System.out.println("Waiting for client connection...");
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Client has been connected");
+                //System.out.println("Client has been connected");
+                admin.info("Client has been connected");
                 ClientHandler handler = new ClientHandler(clientSocket, this);
                 try {
                     handler.handle();
                 } catch (IOException e) {
-                    System.err.println("Failed to handle client connection");
+                    //System.err.println("Failed to handle client connection");
+                    admin.info("Failed to handle client connection");
                     clientSocket.close();
                 }
             }
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            //System.err.println(e.getMessage());
+            admin.fatal(e.getMessage());
             e.printStackTrace();
         } finally {
             authService.stop();
@@ -73,11 +91,13 @@ public class MyServer {
         clients.add(clientHandler);
         List<String> users = getAllUsernames();
         broadcastMessage(Command.updateUsersListCommand(users));
+        client.info("Client " + clientHandler.getNickname() + " log in");
     }
     public synchronized void unsubscribe(ClientHandler clientHandler) throws IOException {
         clients.remove(clientHandler);
         List<String> users = getAllUsernames();
         broadcastMessage(Command.updateUsersListCommand(users));
+        client.info("Client " + clientHandler.getNickname() + " log out");
     }
 
     private List<String> getAllUsernames() {
