@@ -96,7 +96,8 @@ public class ClientHandler {
                 }
                 default:
                     String errorMessage = "Illegal command for authentification" + command.getType();
-                    System.err.println(errorMessage);
+//                    System.err.println(errorMessage);
+
                     sendMessage(Command.errorCommand(errorMessage));
             }
         }
@@ -123,8 +124,9 @@ public class ClientHandler {
         try {
             return (Command) inputStream.readObject();
         } catch (ClassNotFoundException e) {
-            String errorMessage = "Unknown type of object from client";
-            System.err.println(errorMessage);
+            String errorMessage = "Unknown type of object from client " + getNickname();
+            serverInstance.getClient().error(errorMessage);
+            //System.err.println(errorMessage);
             e.printStackTrace();
             sendMessage(Command.errorCommand(errorMessage));
             return null;
@@ -161,6 +163,7 @@ public class ClientHandler {
     }
 
     public void sendMessage(Command command) throws IOException {
+        serverInstance.getClient().info("Client " + getNickname() + " send message");
         outputStream.writeObject(command);
     }
 }
